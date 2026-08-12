@@ -1,0 +1,30 @@
+name: Remove Commit History
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Reset History to 1 Commit
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+          git checkout --orphan temp_removal_branch
+          git add -A
+          git commit -m "Clean Slate" --author="Anna-Anastasia <anna@annaanastasia.org>"
+          git branch -D $BRANCH_NAME
+          git branch -m $BRANCH_NAME
+          git push -f origin $BRANCH_NAME
